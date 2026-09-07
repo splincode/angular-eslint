@@ -2,13 +2,20 @@ import { ASTUtils, CommentUtils, Selectors } from '@angular-eslint/utils';
 import { TSESLint, TSESTree } from '@typescript-eslint/utils';
 import { createESLintRule } from '../utils/create-eslint-rule';
 
+type OrderConfig = {
+  readonly Component?: string[];
+  readonly Directive?: string[];
+  readonly NgModule?: string[];
+  readonly Pipe?: string[];
+};
+
 export type Options = [
-  {
-    [key: string]: string[];
+  OrderConfig & {
+    readonly strict?: boolean;
   },
 ];
 
-export type MessageIds = 'incorrectOrder';
+export type MessageIds = 'incorrectOrder' | 'unconfiguredProperty';
 
 const DEFAULT_ORDER = {
   // https://angular.dev/api/core/Component
@@ -67,6 +74,11 @@ const DEFAULT_ORDER = {
   Pipe: ['name', 'standalone', 'pure'],
 };
 
+const DEFAULT_OPTIONS: Options[0] = {
+  ...DEFAULT_ORDER,
+  strict: false,
+};
+
 export const RULE_NAME = 'sort-keys-in-type-decorator';
 
 export default createESLintRule<Options, MessageIds>({
@@ -106,6 +118,10 @@ export default createESLintRule<Options, MessageIds>({
               type: 'string',
             },
           },
+          strict: {
+            type: 'boolean',
+            default: DEFAULT_OPTIONS.strict,
+          },
         },
         additionalProperties: false,
       },
@@ -113,8 +129,10 @@ export default createESLintRule<Options, MessageIds>({
     messages: {
       incorrectOrder:
         'Keys in @{{decorator}} decorator should be ordered: {{expectedOrder}}',
+      unconfiguredProperty:
+        'Property "{{property}}" is not configured in the @{{decorator}} decorator order.',
     },
-    defaultOptions: [DEFAULT_ORDER],
+    defaultOptions: [DEFAULT_OPTIONS],
   },
   create(
     context: Readonly<TSESLint.RuleContext<MessageIds, Options>>,
@@ -124,7 +142,9 @@ export default createESLintRule<Options, MessageIds>({
       node: TSESTree.Decorator,
       decoratorName: string,
     ): void {
-      const expectedOrder = orderConfig[decoratorName];
+      const expectedOrder = orderConfig[
+        decoratorName as keyof OrderConfig
+      ] as string[] | undefined;
       if (!expectedOrder) {
         return;
       }
@@ -135,6 +155,25 @@ export default createESLintRule<Options, MessageIds>({
       }
 
       const properties = ASTUtils.getDecoratorProperties(node);
+      const strict = orderConfig.strict ?? false;
+
+      if (strict) {
+        for (const property of properties) {
+          const propertyName = (property.key as TSESTree.Identifier).name;
+
+          if (!expectedOrder.includes(propertyName)) {
+            context.report({
+              node: property,
+              messageId: 'unconfiguredProperty',
+              data: {
+                decorator: decoratorName,
+                property: propertyName,
+              },
+            });
+          }
+        }
+      }
+
       if (properties.length <= 1) {
         return;
       }
@@ -147,6 +186,7 @@ export default createESLintRule<Options, MessageIds>({
       );
 
       if (
+        !strict &&
         firstConfiguredIndex !== -1 &&
         lastNonConfiguredIndex !== -1 &&
         lastNonConfiguredIndex < firstConfiguredIndex
