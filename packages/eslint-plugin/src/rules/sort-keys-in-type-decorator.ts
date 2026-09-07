@@ -142,9 +142,7 @@ export default createESLintRule<Options, MessageIds>({
       node: TSESTree.Decorator,
       decoratorName: string,
     ): void {
-      const expectedOrder = orderConfig[
-        decoratorName as keyof OrderConfig
-      ] as string[] | undefined;
+      const expectedOrder = orderConfig[decoratorName as keyof OrderConfig];
       if (!expectedOrder) {
         return;
       }
