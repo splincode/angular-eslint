@@ -477,7 +477,7 @@ class Test {}
   // Comment above imports
   imports: [
     // Comment inside imports array
-    CommonModule, // Common module comment
+    CommonModule, // Comment after CommonModule
     FormsModule /* Comment after FormsModule */
   ],
   /* Comment above standalone */
