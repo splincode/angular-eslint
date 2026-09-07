@@ -298,7 +298,7 @@ export class TestPipe {}
     options: [
       {
         Component: ['selector'],
-        strict: false,
+        allowUnconfiguredProperties: true,
       },
     ],
   },
@@ -313,7 +313,7 @@ export class TestPipe {}
     options: [
       {
         Component: ['selector', 'template'],
-        strict: true,
+        allowUnconfiguredProperties: false,
       },
     ],
   },
@@ -415,7 +415,7 @@ export class TestPipe {}
           'schemas',
         ],
         Pipe: ['standalone', 'name', 'pure'],
-        strict: true,
+        allowUnconfiguredProperties: false,
       },
     ],
   },
@@ -865,7 +865,7 @@ export const invalid: readonly InvalidTestCase<MessageIds, Options>[] = [
     options: [
       {
         Component: ['selector'],
-        strict: true,
+        allowUnconfiguredProperties: false,
       },
     ],
     errors: [
