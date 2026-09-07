@@ -12,7 +12,7 @@ type OrderConfig = {
 
 export type Options = [
   OrderConfig & {
-    readonly strict?: boolean;
+    readonly allowUnconfiguredProperties?: boolean;
   },
 ];
 
@@ -79,7 +79,7 @@ const DEFAULT_ORDER = {
 
 const DEFAULT_OPTIONS: Options[0] = {
   ...DEFAULT_ORDER,
-  strict: false,
+  allowUnconfiguredProperties: true,
 };
 
 export const RULE_NAME = 'sort-keys-in-type-decorator';
@@ -127,9 +127,9 @@ export default createESLintRule<Options, MessageIds>({
               type: 'string',
             },
           },
-          strict: {
+          allowUnconfiguredProperties: {
             type: 'boolean',
-            default: DEFAULT_OPTIONS.strict,
+            default: DEFAULT_OPTIONS.allowUnconfiguredProperties,
           },
         },
         additionalProperties: false,
@@ -162,9 +162,10 @@ export default createESLintRule<Options, MessageIds>({
       }
 
       const properties = ASTUtils.getDecoratorProperties(node);
-      const strict = orderConfig.strict ?? false;
+      const allowUnconfiguredProperties =
+        orderConfig.allowUnconfiguredProperties ?? true;
 
-      if (strict) {
+      if (!allowUnconfiguredProperties) {
         for (const property of properties) {
           const propertyName = (property.key as TSESTree.Identifier).name;
 
@@ -193,7 +194,7 @@ export default createESLintRule<Options, MessageIds>({
       );
 
       if (
-        !strict &&
+        allowUnconfiguredProperties &&
         firstConfiguredIndex !== -1 &&
         lastNonConfiguredIndex !== -1 &&
         lastNonConfiguredIndex < firstConfiguredIndex
