@@ -5,6 +5,7 @@ import { createESLintRule } from '../utils/create-eslint-rule';
 type OrderConfig = {
   readonly Component?: string[];
   readonly Directive?: string[];
+  readonly Injectable?: string[];
   readonly NgModule?: string[];
   readonly Pipe?: string[];
 };
@@ -59,6 +60,8 @@ const DEFAULT_ORDER = {
     'queries',
     'jit',
   ],
+  // https://angular.dev/api/core/Injectable
+  Injectable: ['providedIn'],
   // https://angular.dev/api/core/NgModule
   NgModule: [
     'id', // rarely used but good to have first if set
@@ -87,7 +90,7 @@ export default createESLintRule<Options, MessageIds>({
     type: 'suggestion',
     docs: {
       description:
-        'Ensures that keys in type decorators (Component, Directive, NgModule, Pipe) are sorted in a consistent order',
+        'Ensures that keys in type decorators (Component, Directive, Injectable, NgModule, Pipe) are sorted in a consistent order',
     },
     fixable: 'code',
     schema: [
@@ -101,6 +104,12 @@ export default createESLintRule<Options, MessageIds>({
             },
           },
           Directive: {
+            type: 'array',
+            items: {
+              type: 'string',
+            },
+          },
+          Injectable: {
             type: 'array',
             items: {
               type: 'string',
@@ -338,5 +347,5 @@ function reportAndFix(
 
 export const RULE_DOCS_EXTENSION = {
   rationale:
-    'Maintaining a consistent order for properties in Angular decorators (@Component, @Directive, @NgModule, @Pipe) makes code more predictable and easier to scan. When all components in a codebase follow the same property order, developers can quickly locate specific metadata without searching. For example, if selector always comes first and providers always comes before changeDetection, you develop muscle memory for where to look. This is especially helpful in large components with many properties. The recommended default order groups related properties logically: identification (selector, name) first, then dependencies (imports, providers), then templates/styles, then configuration options. Consistent ordering also makes code reviews easier, reduces merge conflicts when multiple developers edit decorators, and creates a professional, well-organized codebase.',
+    'Maintaining a consistent order for properties in Angular decorators (@Component, @Directive, @Injectable, @NgModule, @Pipe) makes code more predictable and easier to scan. When all components in a codebase follow the same property order, developers can quickly locate specific metadata without searching. For example, if selector always comes first and providers always comes before changeDetection, you develop muscle memory for where to look. This is especially helpful in large components with many properties. The recommended default order groups related properties logically: identification (selector, name) first, then dependencies (imports, providers), then templates/styles, then configuration options. Consistent ordering also makes code reviews easier, reduces merge conflicts when multiple developers edit decorators, and creates a professional, well-organized codebase.',
 };
