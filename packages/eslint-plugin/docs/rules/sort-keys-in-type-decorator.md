@@ -50,6 +50,10 @@ interface Options {
    * Default: `["name","standalone","pure"]`
    */
   Pipe?: string[];
+  /**
+   * Default: `false`
+   */
+  strict?: boolean;
 }
 
 ```
@@ -304,8 +308,7 @@ class Test {
   ~~~~~~~~~~~~~~~~~~~~~~~
   declarations: [AppComponent]
 })
-class Test {
-}
+class Test {}
 ```
 
 <br>
