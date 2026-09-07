@@ -55,6 +55,13 @@ export class TestComponent {}
 })
 export class TestDirective {}
   `,
+  // All known Injectable properties in default order
+  `
+@Injectable({
+  providedIn: 'root'
+})
+export class TestService {}
+  `,
   // All known NgModule properties in default order
   `
 @NgModule({
@@ -277,6 +284,138 @@ export class TestPipe {}
           'providers',
           'bootstrap',
         ],
+      },
+    ],
+  },
+  {
+    code: `
+      @Component({
+        selector: 'app-root',
+        custom: true
+      })
+      class Test {}
+    `,
+    options: [
+      {
+        Component: ['selector'],
+        strict: false,
+      },
+    ],
+  },
+  {
+    code: `
+      @Component({
+        selector: 'app-root',
+        template: '<div></div>'
+      })
+      class Test {}
+    `,
+    options: [
+      {
+        Component: ['selector', 'template'],
+        strict: true,
+      },
+    ],
+  },
+  {
+    code: `
+      @Component({
+        moduleId: 'test-module',
+        standalone: true,
+        selector: 'app-root',
+        imports: [CommonModule],
+        template: '<div></div>',
+        styleUrl: './app.component.css',
+        encapsulation: ViewEncapsulation.None,
+        changeDetection: ChangeDetectionStrategy.OnPush,
+        providers: [TestService],
+        host: {'[class.test]': 'true'}
+      })
+      class TestComponent {}
+
+      @Directive({
+        standalone: true,
+        selector: '[appTest]',
+        inputs: ['value'],
+        outputs: ['change'],
+        providers: [TestService],
+        host: {'[class.test]': 'true'}
+      })
+      class TestDirective {}
+
+      @Injectable({
+        providedIn: 'root'
+      })
+      class TestService {}
+
+      @NgModule({
+        id: 'test-module',
+        imports: [CommonModule],
+        declarations: [TestComponent],
+        providers: [TestService],
+        exports: [TestComponent],
+        bootstrap: [AppComponent],
+        schemas: [CUSTOM_ELEMENTS_SCHEMA]
+      })
+      class TestModule {}
+
+      @Pipe({
+        standalone: true,
+        name: 'testPipe',
+        pure: true
+      })
+      class TestPipe {}
+    `,
+    options: [
+      {
+        Component: [
+          'moduleId',
+          'standalone',
+          'signal',
+          'selector',
+          'imports',
+          'template',
+          'templateUrl',
+          'styleUrl',
+          'styleUrls',
+          'styles',
+          'encapsulation',
+          'changeDetection',
+          'providers',
+          'viewProviders',
+          'animations',
+          'entryComponents',
+          'preserveWhitespaces',
+          'interpolation',
+          'hostDirectives',
+          'host',
+        ],
+        Directive: [
+          'standalone',
+          'selector',
+          'inputs',
+          'outputs',
+          'providers',
+          'exportAs',
+          'queries',
+          'hostDirectives',
+          'host',
+          'jit',
+        ],
+        Injectable: ['providedIn'],
+        NgModule: [
+          'id',
+          'jit',
+          'imports',
+          'declarations',
+          'providers',
+          'exports',
+          'entryComponents',
+          'bootstrap',
+          'schemas',
+        ],
+        Pipe: ['standalone', 'name', 'pure'],
+        strict: true,
       },
     ],
   },
@@ -716,4 +855,27 @@ export const invalid: readonly InvalidTestCase<MessageIds, Options>[] = [
       }
     `,
   }),
+  {
+    code: `
+      @Component({
+        custom: true
+      })
+      class Test {}
+    `,
+    options: [
+      {
+        Component: ['selector'],
+        strict: true,
+      },
+    ],
+    errors: [
+      {
+        messageId: 'unconfiguredProperty',
+        data: {
+          decorator: 'Component',
+          property: 'custom',
+        },
+      },
+    ],
+  },
 ];
