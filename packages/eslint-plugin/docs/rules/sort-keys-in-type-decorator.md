@@ -15,7 +15,7 @@
 
 # `@angular-eslint/sort-keys-in-type-decorator`
 
-Ensures that keys in type decorators (Component, Directive, NgModule, Pipe) are sorted in a consistent order
+Ensures that keys in type decorators (Component, Directive, Injectable, NgModule, Pipe) are sorted in a consistent order
 
 - Type: suggestion
 - 🔧 Supports autofix (`--fix`)
@@ -24,7 +24,7 @@ Ensures that keys in type decorators (Component, Directive, NgModule, Pipe) are 
 
 ## Rationale
 
-Maintaining a consistent order for properties in Angular decorators (@Component, @Directive, @NgModule, @Pipe) makes code more predictable and easier to scan. When all components in a codebase follow the same property order, developers can quickly locate specific metadata without searching. For example, if selector always comes first and providers always comes before changeDetection, you develop muscle memory for where to look. This is especially helpful in large components with many properties. The recommended default order groups related properties logically: identification (selector, name) first, then dependencies (imports, providers), then templates/styles, then configuration options. Consistent ordering also makes code reviews easier, reduces merge conflicts when multiple developers edit decorators, and creates a professional, well-organized codebase.
+Maintaining a consistent order for properties in Angular decorators (@Component, @Directive, @Injectable, @NgModule, @Pipe) makes code more predictable and easier to scan. When all components in a codebase follow the same property order, developers can quickly locate specific metadata without searching. For example, if selector always comes first and providers always comes before changeDetection, you develop muscle memory for where to look. This is especially helpful in large components with many properties. The recommended default order groups related properties logically: identification (selector, name) first, then dependencies (imports, providers), then templates/styles, then configuration options. Consistent ordering also makes code reviews easier, reduces merge conflicts when multiple developers edit decorators, and creates a professional, well-organized codebase.
 
 <br>
 
@@ -43,6 +43,10 @@ interface Options {
    */
   Directive?: string[];
   /**
+   * Default: `["providedIn"]`
+   */
+  Injectable?: string[];
+  /**
    * Default: `["id","imports","declarations","providers","exports","bootstrap","schemas","jit"]`
    */
   NgModule?: string[];
@@ -51,9 +55,9 @@ interface Options {
    */
   Pipe?: string[];
   /**
-   * Default: `false`
+   * Default: `true`
    */
-  strict?: boolean;
+  allowUnconfiguredProperties?: boolean;
 }
 
 ```
@@ -308,7 +312,8 @@ class Test {
   ~~~~~~~~~~~~~~~~~~~~~~~
   declarations: [AppComponent]
 })
-class Test {}
+class Test {
+}
 ```
 
 <br>
@@ -472,7 +477,7 @@ class Test {}
   // Comment above imports
   imports: [
     // Comment inside imports array
-    CommonModule, // Comment after CommonModule
+    CommonModule, // Common module comment
     FormsModule /* Comment after FormsModule */
   ],
   /* Comment above standalone */
